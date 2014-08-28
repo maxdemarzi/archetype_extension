@@ -44,4 +44,12 @@ public class ArchetypeServiceFunctionalTest {
         assertEquals("Warmed up and ready to go!", response.getEntity());
     }
 
+    @Test
+    public void shouldMigrate() {
+        JaxRsResponse response = request.get("service/migrate");
+        assertEquals("Migrated!", response.getEntity());
+        response = request.get("service/migrate");
+        assertEquals("Already Migrated!", response.getEntity());
+    }
+
 }

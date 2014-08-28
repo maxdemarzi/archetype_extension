@@ -33,4 +33,11 @@ public class ArchetypeServiceTest {
     public void shouldWarmUp() {
         assertEquals("Warmed up and ready to go!", service.warmUp(db));
     }
+
+    @Test
+    public void shouldMigrate() {
+        assertEquals("Migrated!", service.migrate(db));
+        assertEquals("Already Migrated!", service.migrate(db));
+    }
+
 }
