@@ -122,4 +122,22 @@ public class ArchetypeService {
             return Response.ok(objectMapper.writeValueAsString(results)).build();
         }
     }
+
+    @GET
+    @Path("/identity/knows")
+    public Response getIdentityKnows(@DefaultValue("") @QueryParam("email") String email,
+                                     @DefaultValue("") @QueryParam("md5hash") String hash,
+                                     @Context GraphDatabaseService db) throws IOException {
+        hash = Identity.getHash(email, hash);
+
+        try ( Transaction tx = db.beginTx() ) {
+            final Node identity = Identity.getIdentityNode(hash, db);
+
+            ArrayList<String> results = new ArrayList<>();
+            for (Relationship knows : identity.getRelationships(Direction.OUTGOING, RelationshipTypes.KNOWS)) {
+                results.add((String) knows.getEndNode().getProperty("hash"));
+            }
+            return Response.ok(objectMapper.writeValueAsString(results)).build();
+        }
+    }
 }
