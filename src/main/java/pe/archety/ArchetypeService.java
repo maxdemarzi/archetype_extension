@@ -1,13 +1,8 @@
 package pe.archety;
 
-import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.schema.Schema;
-import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.tooling.GlobalGraphOperations;
 
 import javax.ws.rs.DefaultValue;
@@ -17,6 +12,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
@@ -82,18 +78,32 @@ public class ArchetypeService {
     public Response getIdentity(@DefaultValue("") @QueryParam("email") String email,
                                 @DefaultValue("") @QueryParam("md5hash") String hash,
                                 @Context GraphDatabaseService db) throws IOException {
-        hash = Utilities.getHash(email, hash);
+        hash = Identity.getHash(email, hash);
         try ( Transaction tx = db.beginTx()) {
-            final Node identity =
-                    IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.Identity, "hash", hash));
-            if(identity != null) {
-                return Response.ok(objectMapper.writeValueAsString(
-                        Collections.singletonMap("identity", (String)identity.getProperty("hash"))
-                )).build();
-            } else {
-                throw Exception.identityNotFound;
-            }
-        }
+            final Node identity = Identity.getIdentityNode(hash, db);
 
+            return Response.ok(objectMapper.writeValueAsString(
+                    Collections.singletonMap("identity", (String)identity.getProperty("hash"))
+            )).build();
+
+        }
+    }
+
+    @GET
+    @Path("/identity/likes")
+    public Response getIdentityLikes(@DefaultValue("") @QueryParam("email") String email,
+                                    @DefaultValue("") @QueryParam("md5hash") String hash,
+                                    @Context GraphDatabaseService db) throws IOException {
+        hash = Identity.getHash(email, hash);
+        try ( Transaction tx = db.beginTx()) {
+            final Node identity = Identity.getIdentityNode(hash, db);
+            ArrayList<String> results = new ArrayList<>();
+            for (Relationship likes : identity.getRelationships(Direction.OUTGOING, RelationshipTypes.LIKES)) {
+                results.add((String)likes.getEndNode().getProperty("url"));
+            }
+            return Response.ok(objectMapper.writeValueAsString(
+                    results
+            )).build();
+        }
     }
 }

@@ -5,8 +5,11 @@ import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Node;
+import org.neo4j.helpers.collection.IteratorUtil;
 
-public class Utilities {
+public class Identity {
 
     public static boolean isValidEmail(String email) {
         return EmailValidator.getInstance().isValid(email);
@@ -42,6 +45,16 @@ public class Utilities {
             } else {
                 throw Exception.invalidMD5HashParameter;
             }
+        }
+    }
+
+    public static Node getIdentityNode(String hash, GraphDatabaseService db) {
+        Node identity = IteratorUtil.singleOrNull(
+                db.findNodesByLabelAndProperty(Labels.Identity, "hash", hash));
+        if(identity != null) {
+            return identity;
+        } else {
+            throw Exception.identityNotFound;
         }
     }
 }
