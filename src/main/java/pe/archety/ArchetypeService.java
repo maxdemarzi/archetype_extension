@@ -101,9 +101,25 @@ public class ArchetypeService {
             for (Relationship likes : identity.getRelationships(Direction.OUTGOING, RelationshipTypes.LIKES)) {
                 results.add((String)likes.getEndNode().getProperty("url"));
             }
-            return Response.ok(objectMapper.writeValueAsString(
-                    results
-            )).build();
+            return Response.ok(objectMapper.writeValueAsString(results)).build();
+        }
+    }
+
+    @GET
+    @Path("/identity/hates")
+    public Response getIdentityHates(@DefaultValue("") @QueryParam("email") String email,
+                                     @DefaultValue("") @QueryParam("md5hash") String hash,
+                                     @Context GraphDatabaseService db) throws IOException {
+        hash = Identity.getHash(email, hash);
+
+        try ( Transaction tx = db.beginTx() ) {
+            final Node identity = Identity.getIdentityNode(hash, db);
+
+            ArrayList<String> results = new ArrayList<>();
+            for (Relationship hates : identity.getRelationships(Direction.OUTGOING, RelationshipTypes.HATES)) {
+                results.add((String) hates.getEndNode().getProperty("url"));
+            }
+            return Response.ok(objectMapper.writeValueAsString(results)).build();
         }
     }
 }
