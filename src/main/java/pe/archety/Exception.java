@@ -18,4 +18,6 @@ public class Exception extends WebApplicationException {
     public static Exception invalidMD5HashParameter = new Exception(400, "Invalid MD5Hash Parameter.");
     public static Exception identityNotFound = new Exception(404, "Identity not found.");
     public static Exception pageNotFound = new Exception(404, "Page not found.");
+    public static Exception identityNotCreated = new Exception(500, "Unable to create Identity.");
+    public static Exception pageNotCreated = new Exception(500, "Unable to create Page.");
 }

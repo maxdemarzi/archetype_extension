@@ -3,12 +3,11 @@ package pe.archety;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.schema.Schema;
+import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.tooling.GlobalGraphOperations;
 
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
+import javax.ws.rs.*;
 import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -139,5 +138,28 @@ public class ArchetypeService {
             }
             return Response.ok(objectMapper.writeValueAsString(results)).build();
         }
+    }
+
+    @POST
+    @Path("/identity")
+    public Response createIdentity(@DefaultValue("") @QueryParam("email") String email,
+                                   @DefaultValue("") @QueryParam("md5hash") String hash,
+                                   @Context GraphDatabaseService db) throws IOException {
+        hash = Identity.getHash(email, hash);
+        try ( Transaction tx = db.beginTx() ) {
+            Node identity = IteratorUtil.singleOrNull(
+                    db.findNodesByLabelAndProperty(Labels.Identity, "hash", hash));
+            if (identity == null) {
+                identity = db.createNode(Labels.Identity);
+                identity.setProperty("hash", hash);
+            }
+            tx.success();
+        } catch (Throwable t) {
+            // If it is not a duplicate, then something bad happened
+            if (!(t instanceof ConstraintViolationException)){
+                throw Exception.identityNotCreated;
+            }
+        }
+        return  Response.ok().build();
     }
 }
