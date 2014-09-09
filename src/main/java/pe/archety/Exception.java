@@ -20,4 +20,8 @@ public class Exception extends WebApplicationException {
     public static Exception pageNotFound = new Exception(404, "Page not found.");
     public static Exception identityNotCreated = new Exception(500, "Unable to create Identity.");
     public static Exception pageNotCreated = new Exception(500, "Unable to create Page.");
+    public static Exception invalidURL = new Exception(400, "Invalid URL Parameter.");
+    public static Exception invalidWikipediaURL = new Exception(400, "Must be a valid Wikipedia URL.");
+    public static Exception wikipediaURLNotFound = new Exception(400, "Wikipedia URL not Found.");
+
 }

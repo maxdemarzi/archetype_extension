@@ -162,4 +162,27 @@ public class ArchetypeService {
         }
         return  Response.ok().build();
     }
+
+    @POST
+    @Path("/page")
+    public Response createPage(@DefaultValue("") @QueryParam("url") String url,
+                               @Context GraphDatabaseService db) throws IOException {
+        url = Page.getPageURL(url);
+
+        try ( Transaction tx = db.beginTx() ) {
+            Node page = IteratorUtil.singleOrNull(
+                    db.findNodesByLabelAndProperty(Labels.Page, "url", url));
+            if (page == null) {
+                page = db.createNode(Labels.Page);
+                page.setProperty("url", url);
+            }
+            tx.success();
+        } catch (Throwable t) {
+            // If it is not a duplicate, then something bad happened
+            if (!(t instanceof ConstraintViolationException)){
+                throw Exception.pageNotCreated;
+            }
+        }
+        return  Response.ok().build();
+    }
 }

@@ -11,6 +11,7 @@ public class TestObjects {
     public static final String validEmail = "maxdemarzi@gmail.com";
     public static final String validURL = "http://en.wikipedia.org/wiki/Neo4j";
     public static final String validURL2 = "http://en.wikipedia.org/wiki/Nutella";
+    public static final String invalidWikipediaURL = "http://en.notwikipedia.org/wiki/Neo4j";
 
     public static final String notFoundEmail = "not@found.com";
 
