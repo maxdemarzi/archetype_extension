@@ -163,6 +163,42 @@ public class ArchetypeService {
         return  Response.ok().build();
     }
 
+    @GET
+    @Path("/page")
+    public Response getPage(@DefaultValue("") @QueryParam("url") String url,
+                            @Context GraphDatabaseService db) throws IOException {
+        if(url.isEmpty()) {
+            throw Exception.missingQueryParameters;
+        }
+
+        try ( Transaction tx = db.beginTx() ) {
+            final Node page = Page.getPageNode(url, db);
+
+            return Response.ok(objectMapper.writeValueAsString(
+                    Collections.singletonMap("url", (String)page.getProperty("url")))).build();
+        }
+    }
+
+    @GET
+    @Path("/page/links")
+    public Response getPageLinks(@DefaultValue("") @QueryParam("url") String url,
+                                 @Context GraphDatabaseService db) throws IOException {
+        if(url.isEmpty()) {
+            throw Exception.missingQueryParameters;
+        }
+
+        try ( Transaction tx = db.beginTx() ) {
+            final Node page = Page.getPageNode(url, db);
+
+
+            ArrayList<String> results = new ArrayList<>();
+            for (Relationship links : page.getRelationships(Direction.OUTGOING, RelationshipTypes.LINKS)) {
+                results.add((String) links.getEndNode().getProperty("url"));
+            }
+            return Response.ok(objectMapper.writeValueAsString(results)).build();
+        }
+    }
+
     @POST
     @Path("/page")
     public Response createPage(@DefaultValue("") @QueryParam("url") String url,

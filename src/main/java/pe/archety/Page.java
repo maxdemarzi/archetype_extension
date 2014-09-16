@@ -1,6 +1,9 @@
 package pe.archety;
 
 import org.apache.commons.validator.routines.UrlValidator;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Node;
+import org.neo4j.helpers.collection.IteratorUtil;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -48,6 +51,16 @@ public class Page {
             }
         } else {
             throw Exception.invalidURL;
+        }
+    }
+
+    public static Node getPageNode(String url, GraphDatabaseService db) {
+        Node page = IteratorUtil.singleOrNull(
+                db.findNodesByLabelAndProperty(Labels.Page, "url", url));
+        if(page != null) {
+            return page;
+        } else {
+            throw Exception.pageNotFound;
         }
     }
 }

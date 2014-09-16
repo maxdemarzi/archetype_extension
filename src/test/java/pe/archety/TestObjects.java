@@ -11,6 +11,7 @@ public class TestObjects {
     public static final String validEmail = "maxdemarzi@gmail.com";
     public static final String validURL = "http://en.wikipedia.org/wiki/Neo4j";
     public static final String validURL2 = "http://en.wikipedia.org/wiki/Nutella";
+    public static final String validURL3 = "http://en.wikipedia.org/wiki/Metallica";
     public static final String invalidWikipediaURL = "http://en.notwikipedia.org/wiki/Neo4j";
 
     public static final String notFoundEmail = "not@found.com";
@@ -19,9 +20,18 @@ public class TestObjects {
         put("identity", validMD5Hash);
     }};
 
+    public static final HashMap<String, Object> validPageHash = new HashMap<String, Object>(){{
+        put("url", validURL);
+    }};
+
     public static final ArrayList<String> validIdentityPages = new ArrayList<String>(2){{
         add(validURL);
         add(validURL2);
+    }};
+
+    public static final ArrayList<String> validPageLinks = new ArrayList<String>(2){{
+        add(validURL2);
+        add(validURL3);
     }};
 
     public static final ArrayList<String> validIdentityKnows = new ArrayList<String>(2){{
